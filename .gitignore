@@ -127,6 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-**/etl_pass.py
+**/covid_pass.py
 **/.ipynb_checkpoints
 **/._pycache_
