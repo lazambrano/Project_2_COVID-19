@@ -7,16 +7,17 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func, inspect
 from flask import Flask, jsonify
+from flask_cors import CORS
 
 # create an engine and connection setup..reflect tables into sqlalchemy ORM ...
-engine = create_engine("sqlite:///covid-19.db")
+engine = create_engine("sqlite:///DataBase/covid-19.db")
 Base = automap_base()
 Base.prepare(engine, reflect=True)
 
 # re-define our tables to python and save them...
-states = Base.classes.states
-monthly = Base.classes.monthly
-world = Base.classes.world
+States = Base.classes.states
+Monthly = Base.classes.monthly
+World = Base.classes.world
 
 ## Flask Setup
 app = Flask(__name__)
