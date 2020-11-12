@@ -6,18 +6,17 @@ import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func, inspect
-from flask import Flask, Jsonify
+from flask import Flask, jsonify
 
 # create an engine and connection setup..reflect tables into sqlalchemy ORM ...
-engine = create_engine("sqlite:///covid.db")
+engine = create_engine("sqlite:///covid-19.db")
 Base = automap_base()
 Base.prepare(engine, reflect=True)
 
 # re-define our tables to python and save them...
-Covid_total = Base.classes.covid_total
-Covid_monthly = Base.classes.covid_monthly_avg
-Covid_world = Base.classes.covid_world_stat
-Covid_states = Base.classes.covid_states_stat
+states = Base.classes.states
+monthly = Base.classes.monthly
+world = Base.classes.world
 
 ## Flask Setup
 app = Flask(__name__)
@@ -29,39 +28,46 @@ def welcome():
     """List all available routes"""
     return (
         f"Available Routes: <br/>"
-        f"/api/v1.0/Covid_total<br/>"
-        f"/api/v1.0/Covid_monthly<br/>"
-        f"/api/v1.0/Covid_world<br/>"
-        f"/api/v1.0/Covid_states<br/>"
+        f"/api/v1.0/states<br/>"
+        f"/api/v1.0/monthly<br/>"
+        f"/api/v1.0/world<br/>"
     )
 # create a route..
-@app.route('/api/v1.0/Covid_total')
-def Covid_total():
+@app.route('/api/v1.0/states')
+def states():
     ## create session
     session = Session(engine)
+    conn = engine.connect()
+    df = pd.read_sql("SELECT * FROM states", conn)
+    session.close()
+    return df.to_json(orient="records")
 
     # query database for needed information
-    """ Return a json dictionary of dates and precipitation from Measurement database"""
-    results = session.query(Covid_total.State, Covid_total.Total_cases, Covid_total.Case_rate_per_100k, 
-                            Covid_total.Total_deaths, Covid_total.Death_rate_per_100k).all()
-    session.close()
+    # """ Return a json dictionary of dates and precipitation from Measurement database"""
+    # results = session.query(states.State, states.Total_cases, states.Case_rate_per_100k, 
+    #                         states.Total_deaths, states.Death_rate_per_100k).all()
+    # session.close()
 
     # create the list and then iterate over our query to return needed values....
-    all_Covid_total = []
-    for State, Total_cases, Case_rate_per_100k, Total_deaths, Death_rate_per_100k in results:
-        Covid_total_dict = {}
-        Covid_total_dict['State'] = State
-        Covid_total_dict['Total_cases'] = Total_cases
-        Covid_total_dict['Case_rate_per_100k'] = Case_rate_per_100k
-        Covid_total_dict['Total_deaths'] = Total_deaths
-        Covid_total_dict['Death_rate_per_100k'] = Death_rate_per_100k
+    # all_states = []
+    # for State, Total_cases, Case_rate_per_100k, Total_deaths, Death_rate_per_100k in results:
+    #     states_dict = {}
+    #     states_dict['State'] = State
+    #     states_dict['Total_cases'] = Total_cases
+    #     states_dict['Case_rate_per_100k'] = Case_rate_per_100k
+    #     states_dict['Total_deaths'] = Total_deaths
+    #     states_dict['Death_rate_per_100k'] = Death_rate_per_100k
 
-        all_Covid_total.append(Covid_total_dict)    
-    return jsonify(all_Covid_total)
+    #     all_states.append(states_dict)    
+    # return jsonify(all_states)
 
-# @app.route('/api/v1.0/stations')
-# def station():
-#     session = Session(engine)
+@app.route('/api/v1.0/monthly')
+def monthly():
+    session = Session(engine)
+    conn = engine.connect()
+    df = pd.read_sql("SELECT * FROM monthly", conn)
+    session.close()
+    return df.to_json(orient="records")
 
 #     """ Return a json list of stations in Station database"""
 
@@ -75,9 +81,13 @@ def Covid_total():
 #             station_list.append(stn)
 #     return jsonify(station_list)
 
-# @app.route('/api/v1.0/tobs')
-# def tobs():
-#     session = Session(engine)
+@app.route('/api/v1.0/world')
+def world():
+    session = Session(engine)
+    conn = engine.connect()
+    df = pd.read_sql("SELECT * FROM world", conn)
+    session.close()
+    return df.to_json(orient="records")
 
 #     """ Return a json list of temperature observation (tobs) of the most active station for the last year"""
 #     """ Most active station is station number USC00519281..this is from the first part of the hw"""
