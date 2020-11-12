@@ -6,11 +6,11 @@ import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func, inspect
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from flask_cors import CORS
 
 # create an engine and connection setup..reflect tables into sqlalchemy ORM ...
-engine = create_engine("sqlite:///./Static/covid-19.db")
+engine = create_engine("sqlite:///covid-19.db")
 Base = automap_base()
 Base.prepare(engine, reflect=True)
 
@@ -25,14 +25,17 @@ app.config['DEBUG'] = True
 
 ## flask routes
 @app.route('/')
+#@app.route("/")
 def welcome():
-    """List all available routes"""
-    return (
-        f"Available Routes: <br/>"
-        f"/api/v1.0/states<br/>"
-        f"/api/v1.0/monthly<br/>"
-        f"/api/v1.0/world<br/>"
-    )
+    return render_template("chart.html") 
+# def welcome():
+#     """List all available routes"""
+#     return (
+#         f"Available Routes: <br/>"
+#         f"/api/v1.0/states<br/>"
+#         f"/api/v1.0/monthly<br/>"
+#         f"/api/v1.0/world<br/>"
+#     )
 # create a route..
 @app.route('/api/v1.0/states')
 def states():
