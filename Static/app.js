@@ -1,9 +1,12 @@
 //create function to biuld charts and then update them based on changed ID..
-let queryurl="http://api/v1.0/monthly"
-// function createPlots(id) {
+// let queryurl="/api/v1.0/monthly"
+console.log("hello")
+function createPlots(id) {
+    
 
-    d3.json(queryurl, function(data) {
-        console.log(data)
+    d3.csv('monthly.csv').then(d => {
+        console.log(d)
+        console.log('hi')
         // let dataCopy = data;
         // let dataSample = dataCopy.samples;
         // console.log(dataSample);
@@ -168,7 +171,7 @@ let queryurl="http://api/v1.0/monthly"
 
 //        Plotly.newPlot('bubble', bubbleData, bubbleLayout);
     });
-// };
+};
 
 // // function to display demographic information for selected ID..
 // function createDemographic(id) {

@@ -10,7 +10,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 # create an engine and connection setup..reflect tables into sqlalchemy ORM ...
-engine = create_engine("sqlite:///DataBase/covid-19.db")
+engine = create_engine("sqlite:///./Static/covid-19.db")
 Base = automap_base()
 Base.prepare(engine, reflect=True)
 
