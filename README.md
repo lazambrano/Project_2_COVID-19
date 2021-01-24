@@ -1,6 +1,6 @@
 # Project_2_COVID-19
 
-[dashboard](./image/dashboard.png)
+![dashboard](./image/dashboard.png)
 
 # Project Topic:
 The topic of this project is COVID-19 pandemic using updated pandemic data from CDC website
