@@ -1,48 +1,43 @@
-//create function to biuld charts and then update them based on changed ID..
+// base url for API call
 let url="/api/v1.0/monthly"
-console.log("hello")
 
-
-// d3.json(url).then(function(data) {
-//     let covidData = data;
-//     console.log(covidData);
-//     console.log(covidData);
-    
-    // let filteredData = covidData.filter(item => item.State === State);
-    // console.log(filteredData);
-// })
+// function to create plots based on State
 function createPlots(State) {
-    // let State = ''
-    
+
+    // querry API using base url
     d3.json(url).then(function(data) {
 
+        // filter data by State and use the filter to extract need information to build charts
         let covidData = data.filter(item => item.State.toString() === State);
-        // console.log(filteredRecovery);
-        // let covidData = data;
         console.log(covidData);
 
+        // create empy list and append states to it
         let states = [];
         covidData.forEach(item => states.push(item.State));
         console.log(states);
 
+        // append average cases to an empty list
         let averageCases = [];
         covidData.forEach(item => averageCases.push(item.Average_cases));
         console.log(averageCases);
 
+        // append dates to an empty list
         let dates= [];
         covidData.forEach(item => dates.push(item.Date));
         console.log(dates);
 
+        // append average deaths to an empty list
         let averageDeaths = [];
         covidData.forEach(item => averageDeaths.push(item.Average_death));
         console.log(averageDeaths);
 
+        // append death percentage to an empty list
         let deathPercent = [];
         covidData.forEach(item => deathPercent.push(item.Death_percent));
         console.log(deathPercent);
         
-//         // build bar chart..
-        let trace1 = {
+        // build horizontal bar chart to show monthly status
+        let barTrace = {
             x: averageCases.reverse(),
             y: dates.reverse(),
             orientation: 'h',
@@ -50,7 +45,7 @@ function createPlots(State) {
             text: averageDeaths.reverse()
         };
 
-        let dataTrace = [trace1];
+        let dataTrace = [barTrace];
     
         let barLayout = {
             title: "COVID-19 Average Cases And Deaths",
@@ -64,22 +59,18 @@ function createPlots(State) {
     
         Plotly.newPlot('bar', dataTrace, barLayout); 
 
-       // build gauge chart..
-        // let recoveryData = covidData.Recovery_percent;
-        // console.log(recoveryData);
-        
+       // build gauge chart t show recovery percentage   
         let filteredRecovery = covidData.filter(item => item.State.toString() === State);
         console.log(filteredRecovery);
 
+        // append recovery percentage to an empty list
         let recovery = [];
         filteredRecovery.forEach(item => recovery.push(item.Recovery_percent));
-        // console.log(states);
-        
-        // let recovery = filteredRecovery.Recovery_percent;
         console.log(recovery);
 
-        // Enter the washing frequency between 0 and 180
+        // Enter the recovery between 0 and 180
         let level = parseFloat(recovery)*1.7;
+
         // Trig to calc meter point
         let degrees = 180 - level;
         let radius = 0.5;
@@ -162,25 +153,23 @@ function createPlots(State) {
             }
         };
 
-        // let GAUGE = document.getElementById("gauge");
         Plotly.newPlot("gauge", gaugeData, gaugeLayout);
-        // console.log(gaugeData)
 
-//     // build bubble chart
-       let bubbleTrace = {
+        // build line chart to show trend of average cases and death percentage during time period
+       let lineTrace = {
            x: dates,
            y: averageCases,
            mode: "lines",
            marker: {
                size:averageCases ,
-               color: averageDeaths
+            //    color: averageDeaths
            },
            text: deathPercent.reverse()
        };
 
-       let bubbleData = [bubbleTrace];
+       let lineData = [lineTrace];
 
-       let bubbleLayout = {
+       let lineLayout = {
            xaxis: {title: "Dates"},
            yaxis: {title: "Average Cases"},
            height: 500,
@@ -188,23 +177,23 @@ function createPlots(State) {
            title: "Covid-19 Average Stats"
         };
 
-       Plotly.newPlot('bubble', bubbleData, bubbleLayout);
+       Plotly.newPlot('line', lineData, lineLayout);
     }).catch(err => console.log(err));
 };
-// createPlots(State)
 
-// // function to display demographic information for selected ID..
-function createDemographic(State) {
+// function to display pandemic data information for selected State..
+function createData(State) {
+
+    // API call
     d3.json(url).then(data => {
         let dataCopy1 = data;
-        // let metaData = dataCopy1.metadata;
-        // console.log(metaData);
 
-        let filteredData = dataCopy1.filter(item => item.State.toString() === State)[0]
+        // filter by State and use filter to generate needed data
+        let filteredData = dataCopy1.filter(item => item.State.toString() === State)[0];
         console.log(filteredData);
         
+        // build pandemic data for selected state
         let stateInfo = d3.select("#sample-metadata");
-        console.log(stateInfo);
         stateInfo.html("");
         Object.entries(filteredData).forEach(key => {
             stateInfo
@@ -214,32 +203,47 @@ function createDemographic(State) {
     });
 };
 
-// // update function ID selection button..
+// update function for state selection button..
 function optionChanged(State) {
     createPlots(State);
-    createDemographic(State);
+    createData(State);
 }
 
-// // intial function for updating charts based on ID selected..
+// fuction to calculate unique characters in a string
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+}
+
+// intial function for updating charts based on State selected..
 function init() {
-    let testIdButton = d3.select("#selDataset");
-    console.log(testIdButton)
+    let stateIdButton = d3.select("#selDataset");
+
+    // API call
     d3.json(url).then(function(data) {
         let dataCopy2 = data;
         console.log(dataCopy2);
+
+        // append states in an smpty list
         let states = [];
         dataCopy2.forEach(item => states.push(item.State));
-        console.log(states);
-        states.forEach(name => {
-        testIdButton.append("option")         
+
+        // select only unique state names
+        let uniqueStates = states.filter((onlyUnique));
+        console.log(uniqueStates);
+
+        // update values based on selected state
+        uniqueStates.forEach(name => {
+        stateIdButton.append("option")         
             .text(name)        
             .property("value")
     
     });
-       
-        createPlots(states[0]);
-        createDemographic(states[0]);
+        
+        // call functions to build charts and state data based on selected state
+        createPlots(uniqueStates[0]);
+        createData(uniqueStates[0]);
     });
 };
 
+// execute initial function
 init();

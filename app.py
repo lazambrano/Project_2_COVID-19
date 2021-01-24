@@ -9,8 +9,8 @@ from sqlalchemy import create_engine, func, inspect
 from flask import Flask, jsonify, render_template
 from flask_cors import CORS
 
-# create an engine and connection setup..reflect tables into sqlalchemy ORM ...
-engine = create_engine("sqlite:///covid-19.db")
+# create an engine and connection setup to querry database...
+engine = create_engine("sqlite:///DataBase/covid-19.db")
 Base = automap_base()
 Base.prepare(engine, reflect=True)
 
@@ -23,15 +23,15 @@ World = Base.classes.world
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
-## flask routes
+## flask routes to render HTML templates
 @app.route('/')
-# @app.route("/")
 def welcome():
     return render_template("chart.html") 
 
 def map():
     return render_template("index.html") 
 
+# list of available routes
 def route():
     """List all available routes"""
     return (
@@ -40,26 +40,31 @@ def route():
         f"/api/v1.0/monthly<br/>"
         f"/api/v1.0/world<br/>"
     )
-# create a route..
+
+# create a route for states table..
 @app.route('/api/v1.0/states')
 def states():
-    ## create session
+    # create session querry data and return a JSON file
     session = Session(engine)
     conn = engine.connect()
     df = pd.read_sql("SELECT * FROM states", conn)
     session.close()
     return df.to_json(orient="records")
 
+# create a route for monthly table..
 @app.route('/api/v1.0/monthly')
 def monthly():
+    # create session querry data and return a JSON file
     session = Session(engine)
     conn = engine.connect()
     df = pd.read_sql("SELECT * FROM monthly", conn)
     session.close()
     return df.to_json(orient="records")
 
+# create a route for world table..
 @app.route('/api/v1.0/world')
 def world():
+    # create session querry data and return a JSON file
     session = Session(engine)
     conn = engine.connect()
     df = pd.read_sql("SELECT * FROM world", conn)
